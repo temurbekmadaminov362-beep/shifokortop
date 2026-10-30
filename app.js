@@ -139,6 +139,55 @@ async function api(path, opts){
   return data;
 }
 
+/* ---------- where ratings live: our own server (server.js) or Supabase (config.js) ---------- */
+const CFG = window.ST_CONFIG || {};
+const SB = CFG.supabaseUrl && CFG.supabaseKey ? { url: String(CFG.supabaseUrl).replace(/\/+$/, ""), key: CFG.supabaseKey } : null;
+async function sbFetch(path, opts){
+  const o = Object.assign({ method: "GET" }, opts || {});
+  o.headers = Object.assign({ apikey: SB.key, Authorization: "Bearer " + SB.key }, o.headers || {});
+  if (o.body && typeof o.body !== "string"){ o.body = JSON.stringify(o.body); o.headers["Content-Type"] = "application/json"; }
+  const r = await fetch(SB.url + path, o);
+  const txt = await r.text();
+  let data = null; try { data = txt ? JSON.parse(txt) : null; } catch (_){}
+  if (!r.ok){
+    const code = (data && (data.message || data.error)) || ("http_" + r.status);
+    throw Object.assign(new Error(code), { status: code === "too_many" ? 429 : r.status, code });
+  }
+  return data;
+}
+async function sha256Hex(s){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, "0")).join("");
+}
+const backend = SB ? {
+  async config(){ return { reviewsEnabled: true, live: true, telegramLink: "" }; },
+  async ratings(){
+    const out = {};
+    for (const r of (await sbFetch("/rest/v1/ratings?select=doctor_id,avg,n")) || []) out[r.doctor_id] = [r.avg, r.n];
+    return out;
+  },
+  async ratingOf(id){
+    const rows = await sbFetch("/rest/v1/ratings?select=avg,n&doctor_id=eq." + encodeURIComponent(id));
+    return rows && rows[0] ? { avg: rows[0].avg, n: rows[0].n } : { avg: 0, n: 0 };
+  },
+  async reviews(id){
+    const rows = await sbFetch("/rest/v1/reviews?select=id,owner_hash,stars,text,updated_at&order=updated_at.desc&limit=200&doctor_id=eq." + encodeURIComponent(id));
+    let mine = ""; try { mine = await sha256Hex(id + ":" + deviceId()); } catch (_){}
+    return (rows || []).map(r => ({ id: r.id, stars: r.stars, text: r.text, at: r.updated_at, verified: false, mine: !!mine && r.owner_hash === mine }));
+  },
+  submit(id, stars, text){ return sbFetch("/rest/v1/rpc/submit_review", { method: "POST", body: { p_doctor: id, p_stars: stars, p_text: text, p_token: deviceId() } }); },
+  remove(id){ return sbFetch("/rest/v1/rpc/delete_my_review", { method: "POST", body: { p_doctor: id, p_token: deviceId() } }); },
+  report(id, kind, text){ return sbFetch("/rest/v1/rpc/submit_report", { method: "POST", body: { p_doctor: id, p_kind: kind, p_text: text } }); },
+} : {
+  config(){ return api("api/config"); },
+  ratings(){ return api("api/ratings"); },
+  async ratingOf(id){ const rt = await api("api/ratings"); return rt[id] ? { avg: rt[id][0], n: rt[id][1] } : { avg: 0, n: 0 }; },
+  async reviews(id){ const d = await api("api/reviews?doctor=" + encodeURIComponent(id)); return (d && d.items) || []; },
+  submit(id, stars, text){ return api("api/reviews", { method: "POST", body: { doctorId: id, stars, text } }); },
+  remove(id){ return api("api/reviews?doctor=" + encodeURIComponent(id), { method: "DELETE" }); },
+  report(id, kind, text){ return api("api/reports", { method: "POST", body: { doctorId: id, kind, text } }); },
+};
+
 /* ---------- labels ---------- */
 function specLabel(code, kids){
   const s = SPEC[code]; if (!s) return code;
@@ -254,12 +303,12 @@ function renderStatic(){
   const so = $("#sort");
   so.replaceChildren(...[["rating","sortRating"],["exp","sortExp"],["price","sortPrice"],["name","sortName"]].map(([v, k]) => h("option", { value: v }, t(k))));
   so.value = state.sort;
-  $("#foot").replaceChildren(
+  $("#foot").replaceChildren(...[
     h("p", null, h("strong", null, t("foot1T")), " ", t("foot1")),
     h("p", null, h("strong", null, t("foot2T")), " ", t("foot2")),
     h("p", null, t("foot3")),
     EMBED || IN_APP ? null : h("p", null, h("a", { href: "download/shifokortop.apk", class: "apk-link" }, t("apkLink"))),
-    h("p", null, h("a", { href: "privacy.html" }, t("privacy"))));
+    h("p", null, h("a", { href: "privacy.html" }, t("privacy")))].filter(Boolean));
   renderInstall();
   renderOffline();
   renderThemeBtn();
@@ -438,9 +487,8 @@ async function loadReviews(id, formMode){
   const list = $("#revList");
   if (list && !state.reviews.has(id)) list.replaceChildren(h("li", { class: "hint" }, t("reviewsLoading")));
   try {
-    const data = await api("api/reviews?doctor=" + encodeURIComponent(id));
-    state.reviews.set(id, data.items || []);
-    const items = data.items || [];
+    const items = await backend.reviews(id);
+    state.reviews.set(id, items);
     if (items.length){
       const avg = items.reduce((s, x) => s + x.stars, 0) / items.length;
       state.ratings.set(id, { avg, n: items.length });
@@ -462,10 +510,10 @@ function refreshReviews(){
   if (!sum || !list) return;
   const items = state.reviews.get(id);
   const r = ratingOf(id);
-  sum.replaceChildren(
+  sum.replaceChildren(...[
     r.n ? h("span", { class: "big" }, r.avg.toFixed(1)) : null,
     starsEl(r.avg, r.n, true),
-    h("span", { class: "hint" }, r.n ? t("nRated", r.n) : t("beFirst")));
+    h("span", { class: "hint" }, r.n ? t("nRated", r.n) : t("beFirst"))].filter(Boolean));
   if (items) list.replaceChildren(...items.map(rv => h("li", { class: "review" },
     h("div", { class: "meta" },
       h("span", { class: "stars", style: "--p:" + (rv.stars * 20) + "%", "aria-label": rv.stars + " / 5" }, "★★★★★"),
@@ -493,7 +541,7 @@ function reviewForm(d){
     if (!stars){ toast(t("needStar")); return; }
     send.disabled = true;
     try {
-      await api("api/reviews", { method: "POST", body: { doctorId: d.id, stars, text: ta.value.trim().slice(0, 800) } });
+      await backend.submit(d.id, stars, ta.value.trim().slice(0, 800));
       toast(t("saved")); send.textContent = t("update"); delBtn.hidden = false;
       await loadReviews(d.id, "force");
     } catch (e){ toast(e.status === 429 ? t("tooMany") : e.code === "links_not_allowed" ? t("noLinks") : t("saveFail")); }
@@ -502,7 +550,7 @@ function reviewForm(d){
   delBtn.addEventListener("click", async () => {
     delBtn.disabled = true;
     try {
-      await api("api/reviews?doctor=" + encodeURIComponent(d.id), { method: "DELETE" });
+      await backend.remove(d.id);
       toast(t("deleted")); await loadReviews(d.id, "force");
     } catch (e){ toast(t("delFail")); }
     finally { delBtn.disabled = false; }
@@ -528,7 +576,7 @@ function reportBlock(d){
     if (kind === "fix" && !ta.value.trim()){ toast(t("repNeed")); return; }
     send.disabled = true;
     try {
-      await api("api/reports", { method: "POST", body: { doctorId: d.id, kind, text: ta.value.trim().slice(0, 600) } });
+      await backend.report(d.id, kind, ta.value.trim().slice(0, 600));
       ta.value = ""; det.open = false; toast(t("repSent"));
     } catch (e){ toast(e.status === 429 ? t("tooMany") : t("repFail")); }
     finally { send.disabled = false; }
@@ -642,9 +690,9 @@ async function load(){
     state.status = "ready";
   } catch (e){ state.status = "error"; }
   renderChips(); renderList();
-  try { state.config = Object.assign(state.config, await api("api/config")); state.apiOk = true; } catch (_){}
+  try { state.config = Object.assign(state.config, await backend.config()); state.apiOk = true; } catch (_){}
   try {
-    const rt = await api("api/ratings");
+    const rt = await backend.ratings();
     for (const id in rt) state.ratings.set(id, { avg: rt[id][0], n: rt[id][1] });
     renderList();
   } catch (_){}
@@ -662,7 +710,7 @@ function updateRatingEls(id){
 }
 async function refreshRatings(){
   try {
-    const rt = await api("api/ratings");
+    const rt = await backend.ratings();
     const seen = new Set(Object.keys(rt));
     for (const id of [...state.ratings.keys()]) if (!seen.has(id)){ state.ratings.delete(id); updateRatingEls(id); }
     for (const id in rt){ state.ratings.set(id, { avg: rt[id][0], n: rt[id][1] }); updateRatingEls(id); }
@@ -677,8 +725,38 @@ async function reloadDoctors(){
     renderChips(); renderList();
   } catch (_){}
 }
+async function onRatingChanged(id){
+  if (!state.doctors.has(id)) return;
+  try { const r = await backend.ratingOf(id); if (r.n) state.ratings.set(id, r); else state.ratings.delete(id); } catch (_){ return; }
+  updateRatingEls(id);
+  if (state.openId === id) loadReviews(id, "idle");
+  else state.reviews.delete(id);
+}
+// Supabase: live changes over its realtime channel (library loaded only when Supabase is configured)
+function connectSupabaseLive(){
+  const s = document.createElement("script");
+  s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
+  s.async = true;
+  s.onload = () => {
+    try {
+      const client = window.supabase.createClient(SB.url, SB.key, { auth: { persistSession: false, autoRefreshToken: false } });
+      let joined = false;
+      client.channel("reviews-live")
+        .on("postgres_changes", { event: "*", schema: "public", table: "reviews" }, (p) => {
+          const id = (p.new && p.new.doctor_id) || (p.old && p.old.doctor_id);
+          if (id) onRatingChanged(id);
+        })
+        .subscribe((status) => { if (status === "SUBSCRIBED"){ if (joined) refreshRatings(); joined = true; } });
+    } catch (_){}
+  };
+  document.head.appendChild(s);
+}
 function connectLive(){
-  if (!state.apiOk || !state.config.live || !("EventSource" in window)) return;
+  if (!state.apiOk || !state.config.live) return;
+  // a quiet safety net if a network blocks the live channel
+  setInterval(() => { if (document.visibilityState === "visible") refreshRatings(); }, 120e3);
+  if (SB){ connectSupabaseLive(); return; }
+  if (!("EventSource" in window)) return;
   const es = new EventSource("api/stream");
   let opened = false;
   es.addEventListener("open", () => { if (opened) refreshRatings(); opened = true; });   // catch up after a reconnect
@@ -691,8 +769,6 @@ function connectLive(){
     else state.reviews.delete(m.id);
   });
   es.addEventListener("doctors", reloadDoctors);
-  // a quiet safety net if a network blocks the stream
-  setInterval(() => { if (document.visibilityState === "visible") refreshRatings(); }, 120e3);
 }
 
 /* ---------- installed app: new versions apply by themselves ---------- */

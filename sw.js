@@ -1,6 +1,6 @@
 /* Shifokor top — service worker.
    Bump VERSION whenever app.js, app.css, i18n.js or the icons change. */
-const VERSION = "st-v5";
+const VERSION = "st-v6";
 // the folder the app lives in: "/" on its own domain, "/shifokortop/" on GitHub Pages
 const BASE = new URL(self.registration.scope).pathname;
 const SHELL = [
@@ -8,6 +8,7 @@ const SHELL = [
   "index.html",
   "app.css",
   "i18n.js",
+  "config.js",
   "app.js",
   "privacy.html",
   "manifest.webmanifest",
@@ -56,7 +57,7 @@ self.addEventListener("fetch", (e) => {
   if (url.origin !== self.location.origin) return;          // fonts, telegram.org: browser default
   if (url.pathname.startsWith(BASE + "api/")) return;       // reviews and ratings are always live
   if (req.mode === "navigate") { e.respondWith(networkFirst(req)); return; }
-  if (url.pathname.startsWith(BASE + "data/")) { e.respondWith(networkFirst(req)); return; }   // a changed list shows at once
+  if (url.pathname.startsWith(BASE + "data/") || url.pathname === BASE + "config.js") { e.respondWith(networkFirst(req)); return; }   // a changed list or setting shows at once
   if (url.pathname === BASE + "sw.js") return;
   e.respondWith(cacheFirst(req));
 });
