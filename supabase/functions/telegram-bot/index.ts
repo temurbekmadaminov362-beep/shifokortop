@@ -1,8 +1,9 @@
 // Shifokor top — Telegram bot (Supabase Edge Function "telegram-bot").
 // The bot answers in chat (search by specialty, symptom, name or clinic) and opens the site as a Telegram Mini App.
 // Needs one secret in Supabase → Edge Functions → Secrets: TELEGRAM_BOT_TOKEN (from @BotFather).
-// "Enforce JWT verification" must be OFF for this function, because Telegram calls it directly.
-// After deploying, open  <function URL>?setup=1  once: it registers the webhook, menu button, commands and descriptions.
+// The function keeps Supabase's JWT check ON. It does not use a webhook: a database job (pg_cron) calls it every
+// minute with the project's anon key, and each call asks Telegram for new messages for about 50 seconds (long polling).
+// Setup (menu button, commands, descriptions) runs once with  GET ?setup=1  (also called with the anon key).
 
 const TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") ?? "";
 const SITE = "https://temurbekmadaminov362-beep.github.io/shifokortop/";
@@ -182,10 +183,10 @@ async function onCallback(cb: any) {
   await sendResults(chatId, lang, `<b>${esc(label)}</b> — ${lang === "ru" ? "врачей" : "shifokorlar"}: ${list.length}`, list, all.specs);
 }
 
-/* ---------- one-time setup: webhook, menu button, commands, descriptions ---------- */
+/* ---------- one-time setup: no webhook (we poll), menu button, commands, descriptions ---------- */
 async function setup() {
   const out: Record<string, unknown> = {};
-  out.webhook = await tg("setWebhook", { url: FN_URL, secret_token: await webhookSecret(), allowed_updates: ["message", "callback_query"], drop_pending_updates: true });
+  out.webhook = await tg("deleteWebhook", { drop_pending_updates: false });
   out.menu = await tg("setChatMenuButton", { menu_button: { type: "web_app", text: TXT.uz.menu, web_app: { url: SITE } } });
   for (const lang of ["uz", "ru"] as Lang[]) {
     const t = TXT[lang]; const lc = lang === "ru" ? "ru" : undefined;
@@ -198,8 +199,36 @@ async function setup() {
   return out;
 }
 
+/* ---------- long polling: one call works for ~50 s, the next call comes from pg_cron a minute later ---------- */
+async function poll(seconds = 50) {
+  const until = Date.now() + seconds * 1000;
+  let offset = 0, handled = 0;
+  while (Date.now() < until - 2000) {
+    const wait = Math.max(1, Math.min(20, Math.floor((until - Date.now()) / 1000) - 2));
+    const r = await tg("getUpdates", offset ? { offset, timeout: wait, allowed_updates: ["message", "callback_query"] } : { timeout: wait, allowed_updates: ["message", "callback_query"] });
+    if (!r.ok) break;                                   // e.g. 409: another call is already polling
+    for (const upd of r.result ?? []) {
+      offset = upd.update_id + 1;
+      try {
+        if (upd.message) await onMessage(upd.message);
+        else if (upd.callback_query) await onCallback(upd.callback_query);
+        handled++;
+      } catch (e) { console.error("update failed", e); }
+    }
+  }
+  if (offset) await tg("getUpdates", { offset, timeout: 0, limit: 1 });   // confirm what was handled
+  return handled;
+}
+
 Deno.serve(async (req: Request) => {
   if (!TOKEN) return new Response("TELEGRAM_BOT_TOKEN secret is not set", { status: 500 });
+  if (req.method === "POST" && new URL(req.url).searchParams.get("poll") === "1") {
+    const job = poll(50);
+    // keep working after answering pg_cron right away
+    const rt = (globalThis as any).EdgeRuntime;
+    if (rt && typeof rt.waitUntil === "function") { rt.waitUntil(job); return new Response("polling", { status: 202 }); }
+    return new Response("handled " + await job);
+  }
   const url = new URL(req.url);
   if (req.method === "GET") {
     if (url.searchParams.get("setup") === "1") {
