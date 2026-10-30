@@ -1,6 +1,6 @@
 /* Shifokor top — service worker.
    Bump VERSION whenever app.js, app.css, i18n.js or the icons change. */
-const VERSION = "st-v4";
+const VERSION = "st-v5";
 // the folder the app lives in: "/" on its own domain, "/shifokortop/" on GitHub Pages
 const BASE = new URL(self.registration.scope).pathname;
 const SHELL = [

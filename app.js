@@ -7,6 +7,8 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const inTG = !!(tg && tg.initData);
 // embed mode: the page runs inside a shared claude.ai page (no install, no service worker, no own share link)
 const EMBED = !!document.querySelector('meta[name="st-mode"][content="embed"]');
+// running inside the Shifokor top Android app (it shows this same site)
+const IN_APP = /ShifokorTopApp/.test(navigator.userAgent);
 
 /* ---------- helpers ---------- */
 const $ = (s, r) => (r || document).querySelector(s);
@@ -256,6 +258,7 @@ function renderStatic(){
     h("p", null, h("strong", null, t("foot1T")), " ", t("foot1")),
     h("p", null, h("strong", null, t("foot2T")), " ", t("foot2")),
     h("p", null, t("foot3")),
+    EMBED || IN_APP ? null : h("p", null, h("a", { href: "download/shifokortop.apk", class: "apk-link" }, t("apkLink"))),
     h("p", null, h("a", { href: "privacy.html" }, t("privacy"))));
   renderInstall();
   renderOffline();
@@ -555,6 +558,8 @@ async function shareDoctor(d){
 }
 
 /* ---------- routing ---------- */
+// Android app: the back button first closes an open doctor card
+window.__stBack = () => { if ($("#detail").open){ closeDoctor(); return true; } return false; };
 function routeFromHash(){
   const m = location.hash.match(/^#d-([A-Za-z0-9-]+)$/);
   if (m && state.doctors.has(m[1])){ if (state.openId !== m[1]) openDoctor(m[1]); }

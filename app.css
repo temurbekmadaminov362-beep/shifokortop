@@ -175,6 +175,7 @@ main.wrap{padding-block:22px 40px}
 .foot{padding-block:8px 40px;color:var(--muted);font-size:.92rem;display:grid;gap:10px}
 .foot p{max-width:72ch}
 .foot strong{color:var(--ink)}
+.apk-link{font-weight:600}
 
 /* ---------- dialogs ---------- */
 dialog{border:none;padding:0;background:var(--surface);color:var(--ink);border-radius:16px;box-shadow:var(--shadow);width:min(720px,calc(100% - 32px));max-height:calc(100% - 48px)}

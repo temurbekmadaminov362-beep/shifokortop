@@ -158,7 +158,7 @@ Object.assign(T.uz, {
   loadErrApp:"Ro'yxatni yuklab bo'lmadi. Internetni tekshirib, ilovani qayta oching.",
   toDark:"Qorong'i rejimga o'tish", toLight:"Yorug' rejimga o'tish",
   noPhone:"Telefon: tez orada qo'shiladi", noPhoneLong:"Tez orada qo'shiladi", call:"Qo'ng'iroq qilish", callShort:"Qo'ng'iroq", onMapBtn:"Xaritada", toTop:"Qidiruv",
-  verifiedTg:"Telegram orqali tasdiqlangan", noLinks:"Izohda havola yoki @nik bo'lmasin."
+  verifiedTg:"Telegram orqali tasdiqlangan", apkLink:"📱 Android uchun ilovani yuklab olish (APK)", noLinks:"Izohda havola yoki @nik bo'lmasin."
 });
 Object.assign(T.ru, {
   install:"Установите приложение на телефон: список откроется даже без интернета.", installBtn:"Установить", later:"Позже",
@@ -170,5 +170,5 @@ Object.assign(T.ru, {
   loadErrApp:"Не удалось загрузить список. Проверьте интернет и откройте приложение снова.",
   toDark:"Включить тёмную тему", toLight:"Включить светлую тему",
   noPhone:"Телефон: скоро добавим", noPhoneLong:"Скоро добавим", call:"Позвонить", callShort:"Позвонить", onMapBtn:"На карте", toTop:"Поиск",
-  verifiedTg:"Подтверждено через Telegram", noLinks:"В отзыве не должно быть ссылок и @ников."
+  verifiedTg:"Подтверждено через Telegram", apkLink:"📱 Скачать приложение для Android (APK)", noLinks:"В отзыве не должно быть ссылок и @ников."
 });
