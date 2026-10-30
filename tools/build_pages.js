@@ -345,4 +345,6 @@ ${urls.map(u => {
 </urlset>
 `;
 fs.writeFileSync(path.join(ROOT, "sitemap.xml"), sitemap);
+// specialty names for the Telegram bot (it reads data/doctors.json and this file from the site)
+fs.writeFileSync(path.join(ROOT, "data/specs.json"), JSON.stringify({ order: SPEC_ORDER, kidOnly: [...KID_ONLY], spec: SPEC }));
 console.log(`pages: ${pages.length} (doctors ${doctors.length} x2, specialties ${specCodes.length}, kids ${byKidSpec.size}, clinics ${byClinic.size}), sitemap urls: ${urls.length}`);

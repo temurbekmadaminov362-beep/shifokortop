@@ -31,7 +31,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add -A d s k ru sitemap.xml index.html
+          git add -A d s k ru sitemap.xml index.html data/specs.json
           git commit -m "Sahifalar yangilandi" || exit 0
           git pull --rebase origin main
           git push origin HEAD:main

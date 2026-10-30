@@ -602,7 +602,9 @@ async function copyText(text, btn, okMsg){
 }
 async function shareDoctor(d){
   const title = nameOf(d) + " — " + specLine(d);
-  const tgLink = state.config.telegramLink ? state.config.telegramLink + "?startapp=d-" + d.id : "";
+  // in Telegram: share a link to the bot, which answers with this doctor's card
+  const tgLink = state.config.telegramLink ? state.config.telegramLink + "?startapp=d-" + d.id
+    : CFG.telegramBot ? "https://t.me/" + CFG.telegramBot + "?start=d-" + d.id : "";
   if (inTG && tgLink){ tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(tgLink) + "&text=" + encodeURIComponent(title)); return; }
   const url = new URL(docPageUrl(d.id), location.href).href;   // the doctor's own page: nice previews in Telegram
   if (navigator.share){ try { await navigator.share({ title: "Shifokor top", text: title, url }); return; } catch (_){ return; } }
