@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shifokor top</title>
+<meta name="description" content="Andijon viloyati shifokorlari: yo'nalish bo'yicha qidiruv, bolalar shifokorlari, xarita, ish vaqti va bemorlar baholari. Врачи Андижанской области.">
+<meta name="theme-color" content="#1a5a9c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Shifokor top">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
+<link rel="stylesheet" href="app.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+<div class="offline" id="offline" hidden></div>
+<header class="band">
+  <div class="wrap head">
+    <a class="brand" href="#" id="home">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="9" y="9" width="22" height="22" rx="2"/><rect x="9" y="9" width="22" height="22" rx="2" transform="rotate(45 20 20)"/></g><path d="M20 14v12M14 20h12" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <span><span class="brand-name">Shifokor top</span><span class="brand-region" data-i="region">Andijon viloyati</span></span>
+    </a>
+    <div class="head-tools">
+      <button type="button" class="theme-btn" id="themeBtn"></button>
+      <div class="lang" role="group" aria-label="Til / Язык">
+        <button type="button" data-lang="uz" aria-pressed="true">O'zbek</button>
+        <button type="button" data-lang="ru" aria-pressed="false">Русский</button>
+      </div>
+    </div>
+  </div>
+  <div class="wrap"><p class="lede" data-i="lede"></p></div>
+  <div class="wrap">
+    <div class="mode" role="group" id="mode">
+      <button type="button" data-mode="all" aria-pressed="true"><span data-i="modeAll"></span></button>
+      <button type="button" data-mode="adults" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="6" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 21v-5a6 6 0 0 1 12 0v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i="modeAdults"></span></button>
+      <button type="button" data-mode="kids" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.5 10h.01M14.5 10h.01M10 12.2c1.2.9 2.8.9 4 0M12 4c-1-1.5 1-2.5 2-1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 21c.8-3 2.6-5 5-5s4.2 2 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i="modeKids"></span></button>
+    </div>
+  </div>
+  <div class="wrap search">
+    <div class="searchbox">
+      <label for="q" class="sr" data-i="searchLabel">Qidirish</label>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="q" type="search" autocomplete="off">
+    </div>
+    <label for="district" class="sr" data-i="districtLabel">Tuman</label>
+    <select id="district"></select>
+    <label for="sort" class="sr" data-i="sortLabel">Saralash</label>
+    <select id="sort"></select>
+  </div>
+  <div class="wrap chips-wrap"><div class="chips" id="chips" role="group"></div></div>
+</header>
+
+<main class="wrap" id="main">
+  <div class="install" id="install" hidden></div>
+  <p id="status" class="status" role="status"></p>
+  <div class="results-head"><h2 id="resultsTitle"></h2><span class="count" id="count"></span></div>
+  <ul id="list" class="list" aria-live="polite">
+    <li class="skel"></li><li class="skel"></li><li class="skel"></li>
+  </ul>
+  <div class="more"><button type="button" id="moreBtn" class="btn ghost" hidden></button></div>
+  <div id="empty" class="empty" hidden></div>
+</main>
+
+<footer class="wrap foot" id="foot"></footer>
+
+<dialog id="detail" aria-labelledby="dName"><div class="sheet" id="detailSheet"></div></dialog>
+<button type="button" class="to-top" id="toTop" hidden></button>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

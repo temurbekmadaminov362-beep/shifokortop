@@ -1,0 +1,20 @@
+{
+  "name": "Shifokor top — Andijon shifokorlari",
+  "short_name": "Shifokor top",
+  "description": "Andijon viloyati shifokorlari: yo'nalish bo'yicha qidiruv, bolalar shifokorlari, xarita, ish vaqti va bemorlar baholari.",
+  "lang": "uz",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f5f2",
+  "theme_color": "#1a5a9c",
+  "categories": ["medical", "health"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
