@@ -744,7 +744,10 @@ function connectSupabaseLive(){
       client.channel("reviews-live")
         .on("postgres_changes", { event: "*", schema: "public", table: "reviews" }, (p) => {
           const id = (p.new && p.new.doctor_id) || (p.old && p.old.doctor_id);
-          if (id) onRatingChanged(id);
+          if (id){ onRatingChanged(id); return; }
+          // a deleted review arrives with its id only: refresh all ratings and the open card
+          refreshRatings();
+          if (state.openId) loadReviews(state.openId, "idle");
         })
         .subscribe((status) => { if (status === "SUBSCRIBED"){ if (joined) refreshRatings(); joined = true; } });
     } catch (_){}
