@@ -45,7 +45,7 @@
     <li>Bitta qurilmadan har bir shifokorga bitta baho beriladi. Buning uchun brauzeringizda tasodifiy kod saqlanadi. Serverga bu kodning o'zi emas, undan yasalgan qaytarib bo'lmaydigan kod (xesh) yoziladi.</li>
     <li>Telegram ichidagi ilovadan yozilgan izoh «✓ Telegram» belgisini oladi. Telegram ID ham ochiq holda saqlanmaydi, faqat xesh ko'rinishida.</li>
     <li>Ism, familiya, foydalanuvchi nomi va telefon raqamingiz saqlanmaydi. Izoh ostida faqat «Bemor» deb yoziladi.</li>
-    <li>IP manzil faqat spamga qarshi cheklov uchun server xotirasida vaqtincha ishlatiladi va bazaga yozilmaydi.</li>
+    <li>IP manzilning o'zi saqlanmaydi. Spamga qarshi cheklov uchun undan yasalgan qaytarib bo'lmaydigan kod (xesh) 2 kungacha saqlanadi.</li>
     <li>Havola yoki @nik bor izoh qabul qilinmaydi.</li>
     <li>Izohingizni istalgan vaqtda o'zgartirishingiz yoki o'chirishingiz mumkin.</li>
     <li>Izohga o'z kasalligingiz, ismingiz yoki boshqa shaxsiy ma'lumot yozmang.</li>
@@ -59,7 +59,7 @@
   <p>Cookie ishlatilmaydi. Brauzer xotirasida faqat tanlangan til, yorug' yoki qorong'i rejim, «o'rnatish» taklifi yopilgani va baho uchun tasodifiy qurilma kodi saqlanadi. Ilova internetsiz ham ochilishi uchun ro'yxat qurilmangizda keshlanadi.</p>
 
   <h2>Ma'lumot qayerda saqlanadi</h2>
-  <p>Server joylashuvi: <span class="todo">[ma'lumot kerak]</span>. «Shaxsga doir ma'lumotlar to'g'risida»gi O'RQ-547-son qonun talabiga ko'ra, O'zbekiston fuqarolarining shaxsiy ma'lumotlari O'zbekiston hududidagi serverlarda saqlanishi kerak.</p>
+  <p>Baho, izoh va xabarlar Supabase xizmatida, Yevropadagi serverda (Parij, Fransiya) saqlanadi. «Shaxsga doir ma'lumotlar to'g'risida»gi O'RQ-547-son qonun talabiga ko'ra, O'zbekiston fuqarolarining shaxsiy ma'lumotlari O'zbekiston hududidagi serverlarda saqlanishi kerak.</p>
 
   <h2>Tibbiy maslahat emas</h2>
   <p>Sayt tibbiy maslahat bermaydi. Shoshilinch holatda 103 raqamiga qo'ng'iroq qiling.</p>
@@ -81,7 +81,7 @@
     <li>С одного устройства каждому врачу ставится одна оценка. Для этого в браузере хранится случайный код. На сервер записывается не сам код, а необратимый код (хеш), сделанный из него.</li>
     <li>Отзыв, написанный в приложении внутри Telegram, получает отметку «✓ Telegram». Telegram ID тоже не хранится в открытом виде, только как хеш.</li>
     <li>Имя, фамилия, имя пользователя и номер телефона не сохраняются. Под отзывом пишется только «Пациент».</li>
-    <li>IP-адрес используется только временно в памяти сервера для защиты от спама и в базу не записывается.</li>
+    <li>Сам IP-адрес не сохраняется. Для защиты от спама до 2 дней хранится необратимый код (хеш), сделанный из него.</li>
     <li>Отзывы со ссылками или @никами не принимаются.</li>
     <li>Свой отзыв можно изменить или удалить в любой момент.</li>
     <li>Не пишите в отзыве свой диагноз, имя и другие личные данные.</li>
@@ -95,7 +95,7 @@
   <p>Cookie не используются. В памяти браузера сохраняются только выбранный язык, светлая или тёмная тема, то, что вы закрыли предложение установить приложение, и случайный код устройства для оценок. Чтобы приложение открывалось без интернета, список кешируется на устройстве.</p>
 
   <h2>Где хранятся данные</h2>
-  <p>Расположение сервера: <span class="todo">[нужны данные]</span>. По закону Республики Узбекистан «О персональных данных» (ЗРУ-547) персональные данные граждан Узбекистана должны храниться на серверах на территории Узбекистана.</p>
+  <p>Оценки, отзывы и сообщения хранятся в сервисе Supabase на сервере в Европе (Париж, Франция). По закону Республики Узбекистан «О персональных данных» (ЗРУ-547) персональные данные граждан Узбекистана должны храниться на серверах на территории Узбекистана.</p>
 
   <h2>Не медицинская консультация</h2>
   <p>Сайт не даёт медицинских советов. В экстренном случае звоните 103.</p>

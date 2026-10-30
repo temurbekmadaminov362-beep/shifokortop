@@ -3,6 +3,6 @@
    The "anon public" key is meant to be public; the database only accepts writes through checked functions.
    Leave both empty when the site runs on its own server (server.js). */
 window.ST_CONFIG = {
-  supabaseUrl: "",
-  supabaseKey: ""
+  supabaseUrl: "https://mkfdcvmbglmbzrcrmtdk.supabase.co",
+  supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZmRjdm1iZ2xtYnpyY3JtdGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzMzU1ODksImV4cCI6MjEwODkxMTU4OX0.Edi18KpSfCGORa_VsspXk5-OXTL6Kan0pXML603mqQI"
 };
