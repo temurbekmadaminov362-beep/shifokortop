@@ -1,0 +1,29 @@
+/* Shifokor top: doctor, specialty and clinic pages (built by tools/build_pages.js). Uses the tokens in app.css. */
+.page{padding-block:20px 40px;display:grid;gap:18px}
+.crumbs{font-size:.9rem;color:var(--muted);overflow-wrap:anywhere}
+.crumbs a{color:var(--muted)}
+.page h1{font-family:var(--f-display);font-size:clamp(1.4rem,4.5vw,2rem);line-height:1.2}
+.page h2{font-size:1.15rem;margin-bottom:10px}
+.doc-page{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:14px}
+.doc-page .spec a{color:inherit;text-decoration:none}
+.doc-page .spec a:hover{text-decoration:underline}
+.doc-page .alt{color:var(--muted)}
+.doc-page .badge{margin:0}
+.doc-page .tel{font-weight:700;font-variant-numeric:tabular-nums}
+.nodata{color:var(--muted);font-style:italic}
+.rating-line{display:flex;align-items:center;gap:8px;font-weight:600}
+.muted{color:var(--muted);font-size:.92rem;font-weight:400}
+.lede-page{color:var(--muted);max-width:62ch}
+.plist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:3px}
+.pcard-name{font-weight:700;font-size:1.08rem;color:var(--ink);text-decoration:none}
+.pcard-name:hover{color:var(--accent);text-decoration:underline}
+.pcard .tel{font-weight:600;font-variant-numeric:tabular-nums}
+.related{display:grid;gap:10px}
+.seo-nav{padding-block:10px 30px;color:var(--muted);font-size:.95rem}
+.seo-nav.inline{padding-block:10px 0}
+.seo-nav h2{font-size:1rem;color:var(--ink);margin:16px 0 8px}
+.seo-nav ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px}
+.seo-nav a{color:var(--accent)}
+.seo-nav .n{font-size:.8rem;color:var(--muted)}
+@media (max-width:700px){.doc-page{padding:16px}.doc-page .info{grid-template-columns:1fr}}

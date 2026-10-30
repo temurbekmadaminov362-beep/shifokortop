@@ -281,6 +281,8 @@ function hoursLine(d){
   return h("p", { class: "hours-line none", svg: ICON.clock }, h("span", null, t("noHoursShort")));
 }
 const telHref = p => "tel:" + String(p).replace(/[^\d+]/g, "");
+// the doctor's own page (built by tools/build_pages.js), in the current language
+const docPageUrl = id => (L() === "ru" ? "ru/" : "") + "d/" + encodeURIComponent(id) + "/";
 function phoneLine(d){
   if (d.phone) return h("p", { class: "phone-line", svg: ICON.phone }, h("span", { class: "num" }, d.phone));
   return h("p", { class: "phone-line none", svg: ICON.phone }, h("span", null, t("noPhone")));
@@ -367,7 +369,9 @@ function card(d){
     h("div", { class: "av" + (kidCard ? " kid" : ""), "aria-hidden": "true" }, initials(nameOf(d))),
     h("div", { class: "c-body" },
       h("p", { class: "spec" }, specLine(d)),
-      h("h3", { class: "name" }, h("button", { type: "button", class: "name-btn", onclick: () => openDoctor(d.id) }, nameOf(d))),
+      h("h3", { class: "name" }, EMBED
+        ? h("button", { type: "button", class: "name-btn", onclick: () => openDoctor(d.id) }, nameOf(d))
+        : h("a", { class: "name-btn", href: docPageUrl(d.id), onclick: (e) => { if (e.ctrlKey || e.metaKey || e.shiftKey) return; e.preventDefault(); openDoctor(d.id); } }, nameOf(d))),
       h("p", { class: "where" }, [d.clinic, L() === "ru" && d.addressRu ? d.addressRu : d.address].filter(Boolean).join(" — ")),
       kidBadge(d),
       hoursLine(d),
@@ -600,7 +604,7 @@ async function shareDoctor(d){
   const title = nameOf(d) + " — " + specLine(d);
   const tgLink = state.config.telegramLink ? state.config.telegramLink + "?startapp=d-" + d.id : "";
   if (inTG && tgLink){ tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(tgLink) + "&text=" + encodeURIComponent(title)); return; }
-  const url = location.origin + location.pathname + "#d-" + d.id;
+  const url = new URL(docPageUrl(d.id), location.href).href;   // the doctor's own page: nice previews in Telegram
   if (navigator.share){ try { await navigator.share({ title: "Shifokor top", text: title, url }); return; } catch (_){ return; } }
   try { await navigator.clipboard.writeText(url); toast(t("linkCopied")); } catch (_){ toast(url); }
 }

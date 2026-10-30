@@ -1,0 +1,37 @@
+# Rebuilds the Google-readable pages (doctors, specialties, clinics, sitemap) whenever the doctors list
+# or the texts change, and saves them to the site.
+name: Sahifalarni yangilash (Google uchun)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/doctors.json"
+      - "i18n.js"
+      - "tools/build_pages.js"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/build_pages.js
+      - name: Save the pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A d s k ru sitemap.xml index.html
+          git commit -m "Sahifalar yangilandi" || exit 0
+          git pull --rebase origin main
+          git push origin HEAD:main
