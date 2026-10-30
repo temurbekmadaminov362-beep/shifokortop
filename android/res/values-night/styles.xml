@@ -2,7 +2,7 @@
 <resources>
     <!-- dark phone setting: dark bars, and the site gets prefers-color-scheme: dark -->
     <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:windowBackground">@drawable/launch_bg</item>
         <item name="android:statusBarColor">@color/bar</item>
         <item name="android:navigationBarColor">@color/bg</item>
         <item name="android:windowLightStatusBar">false</item>

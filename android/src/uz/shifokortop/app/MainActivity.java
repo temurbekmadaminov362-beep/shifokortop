@@ -2,6 +2,7 @@ package uz.shifokortop.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -31,6 +32,7 @@ public class MainActivity extends Activity {
         super.onCreate(state);
         web = new WebView(this);
         web.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        web.setBackgroundColor(Color.TRANSPARENT);   // the blue logo screen shows until the page paints
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);          // language, theme, device id; also needed by the service worker
